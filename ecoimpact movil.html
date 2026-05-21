@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="EcoImpact">
+<title>EcoImpact</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    background: #dff6ff;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* ===== VARIABLES ===== */
+  :root {
+    --azul:    #0077b6;
+    --azul2:   #219ebc;
+    --celeste: #8ecae6;
+    --verde:   #2a9d8f;
+    --verde2:  #90be6d;
+    --fondo:   #dff6ff;
+    --blanco:  #ffffff;
+    --gris:    #adb5bd;
+    --rojo:    #e63946;
+    --card-r:  18px;
+  }
+
+  /* ===== PANTALLAS ===== */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    overflow-y: auto; overflow-x: hidden;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .screen.active {
+    opacity: 1; pointer-events: all;
+  }
+
+  /* ===== HEADER COMPARTIDO ===== */
+  .header {
+    display: flex; align-items: center;
+    padding: 14px 16px 10px;
+    gap: 10px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .btn-back {
+    background: rgba(255,255,255,0.7);
+    border: none; border-radius: 50%;
+    width: 38px; height: 38px;
+    font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .header-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px; color: var(--azul);
+  }
+
+  /* ===== BOTONES GENERALES ===== */
+  .btn {
+    border: none; border-radius: var(--card-r);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.96); }
+
+  /* ========================================
+     PANTALLA INICIO
+  ======================================== */
+  #inicio {
+    background: linear-gradient(160deg, #dff6ff 0%, #b8e8f8 100%);
+    align-items: center;
+    padding-bottom: 30px;
+  }
+  .logo-area {
+    margin-top: 40px;
+    text-align: center;
+  }
+  .logo-emoji { font-size: 64px; line-height: 1; }
+  .logo-titulo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 42px; color: var(--azul);
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+  .logo-sub {
+    font-size: 15px; color: #4f6d7a;
+    margin-top: 8px; line-height: 1.5;
+    text-align: center; padding: 0 30px;
+  }
+  .grid-botones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 28px 20px 0;
+    width: 100%;
+    max-width: 440px;
+  }
+  .card-btn {
+    border-radius: 20px;
+    padding: 20px 10px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    border: none; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card-btn:active { transform: scale(0.95); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .card-btn .icon { font-size: 36px; }
+  .card-btn .label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900; font-size: 13px;
+    text-align: center; color: #1a1a2e;
+    line-height: 1.3;
+  }
+  .card-btn.full { grid-column: 1 / -1; flex-direction: row; gap: 14px; padding: 18px 24px; }
+  .card-btn.full .label { font-size: 15px; text-align: left; }
+
+  /* ========================================
+     PANTALLA INFORMACIÓN
+  ======================================== */
+  #info { background: #ffffff; }
+  #info .header { background: #ffffff; }
+
+  .slides-container {
+    flex: 1;
+    display: flex; flex-direction: column;
+    padding: 0 20px 20px;
+    gap: 16px;
+  }
+  .slide {
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeIn 0.3s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  .slide-card {
+    background: linear-gradient(135deg, #f0faff, #e0f4ff);
+    border-radius: 20px;
+    padding: 22px 20px;
+    box-shadow: 0 2px 12px rgba(0,119,182,0.08);
+  }
+  .slide-emoji { font-size: 44px; margin-bottom: 8px; display: block; }
+  .slide-titulo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px; color: var(--azul);
+    margin-bottom: 12px;
+  }
+  .slide-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px; padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 15px; color: #1a1a2e;
+    font-weight: 700;
+  }
+  .slide-item .si { font-size: 20px; flex-shrink: 0; }
+  .slide-texto {
+    font-size: 15px; color: #333;
+    line-height: 1.6; font-weight: 600;
+  }
+  .slide-alerta {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 14px; font-weight: 700; color: #664d03;
+  }
+
+  .nav-slides {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 20px;
+    gap: 12px;
+  }
+  .btn-nav {
+    background: var(--azul);
+    color: white; border: none;
+    border-radius: 50px; padding: 12px 24px;
+    font-size: 20px; cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-nav:active { transform: scale(0.93); }
+  .btn-nav:disabled { opacity: 0.3; }
+  .puntos-slide {
+    display: flex; gap: 7px;
+  }
+  .punto {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #ccc; transition: background 0.2s, transform 0.2s;
+  }
+  .punto.activo { background: var(--azul); transform: scale(1.3); }
+
+  /* ========================================
+     PANTALLA CALCULADORA
+  ======================================== */
+  #calculadora { background: #f4fbff; }
+  #calculadora .header { background: #f4fbff; }
+
+  .calc-body { padding: 0 20px 30px; flex: 1; }
+  .calc-sub {
+    font-size: 14px; color: #4f6d7a;
+    margin-bottom: 20px; font-weight: 600;
+  }
+  .input-row {
+    display: flex; align-items: center;
+    background: white; border-radius: 14px;
+    padding: 12px 16px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    gap: 12px;
+  }
+  .input-icon { font-size: 26px; flex-shrink: 0; }
+  .input-label {
+    flex: 1; font-weight: 700; font-size: 15px; color: #1a1a2e;
+  }
+  .input-field {
+    width: 70px; border: 2px solid #cde; border-radius: 10px;
+    padding: 6px 10px; font-size: 16px; font-weight: 700;
+    text-align: center; outline: none; font-family: 'Nunito', sans-serif;
+    -webkit-appearance: none;
+  }
+  .input-field:focus { border-color: var(--azul2); }
+
+  .btn-calcular {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--azul), var(--azul2));
+    color: white; font-size: 17px; font-weight: 900;
+    border-radius: 16px; border: none; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,119,182,0.3);
+    transition: transform 0.1s;
+    margin-top: 6px;
+  }
+  .btn-calcular:active { transform: scale(0.97); }
+
+  .resultado-card {
+    background: white; border-radius: 20px;
+    padding: 20px; margin-top: 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    display: none;
+  }
+  .resultado-card.visible { display: block; animation: fadeIn 0.3s ease; }
+  .resultado-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .resultado-item:last-child { border-bottom: none; }
+  .resultado-emoji { font-size: 28px; }
+  .resultado-texto { flex: 1; }
+  .resultado-label { font-size: 12px; color: #888; font-weight: 700; text-transform: uppercase; }
+  .resultado-valor { font-size: 20px; font-weight: 900; color: var(--azul); }
+  .resultado-error {
+    color: var(--rojo); font-weight: 700;
+    text-align: center; padding: 14px;
+    font-size: 15px;
+  }
+
+  /* ========================================
+     PANTALLA FILTRO
+  ======================================== */
+  #filtro { background: #eefcff; }
+  #filtro .header { background: #eefcff; }
+
+  /* ========================================
+     PANTALLA JUEGO
+  ======================================== */
+  #juego {
+    background: #0a1628;
+    overflow: hidden;
+  }
+  #juego .header { background: transparent; position: absolute; top: 0; left: 0; right: 0; }
+  #juego .header .header-title { color: white; }
+  #juego .btn-back { background: rgba(255,255,255,0.15); color: white; }
+
+  #game-canvas {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+  .game-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #0a1628 0%, #0d2137 40%, #0a3d2e 100%);
+  }
+  /* estrellas decorativas */
+  .stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.3) 0%, transparent 100%);
+  }
+
+  #game-ui {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between;
+    padding: 56px 16px 8px;
+    pointer-events: none;
+  }
+  .game-stat {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    border-radius: 12px; padding: 8px 14px;
+    text-align: center;
+  }
+  .game-stat-val {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px; color: white;
+  }
+  .game-stat-label { font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 700; }
+  .game-stat.peligro .game-stat-val { color: #ff6b6b; }
+
+  .objeto-juego {
+    position: absolute;
+    font-size: 32px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    transition: none;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  }
+  #cesto-wrap {
+    position: absolute;
+    bottom: 110px;
+    transform: translateX(-50%);
+    left: 50%;
+    display: flex; flex-direction: column; align-items: center;
+    pointer-events: none;
+  }
+  #cesto-emoji { font-size: 52px; line-height: 1; }
+  #recicla-symbol {
+    font-size: 18px; color: #90be6d;
+    font-weight: 900; margin-top: -4px;
+  }
+
+  #game-estado {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #game-estado.visible { opacity: 1; }
+  .game-estado-titulo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 42px; color: white;
+    text-shadow: 0 0 30px rgba(255,107,107,0.8);
+    text-align: center;
+  }
+  .game-estado-sub {
+    color: rgba(255,255,255,0.7); font-size: 15px;
+    margin-top: 10px; font-weight: 700;
+  }
+
+  /* CONTROLES TÁCTILES */
+  #game-controls {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 105px;
+    display: flex;
+    background: rgba(10,22,40,0.95);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .ctrl-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 32px; color: white; cursor: pointer;
+    border: none; background: transparent;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none;
+    touch-action: none; -webkit-touch-callout: none;
+  }
+  .ctrl-btn:active, .ctrl-btn.pressed { background: rgba(255,255,255,0.1); }
+  .ctrl-center {
+    flex: 0.8; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  .ctrl-mini-btn {
+    background: rgba(255,255,255,0.1); border: none; border-radius: 8px;
+    color: white; font-size: 11px; font-weight: 700;
+    padding: 5px 14px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none;
+    touch-action: manipulation; -webkit-touch-callout: none;
+  }
+  .ctrl-mini-btn:active { background: rgba(255,255,255,0.2); }
+
+  /* reporte del juego */
+  #reporte-juego {
+    position: absolute;
+    top: 115px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 10px;
+    pointer-events: none;
+  }
+  .reporte-chip {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 10px; padding: 6px 12px;
+    text-align: center;
+  }
+  .reporte-chip-val { font-size: 14px; font-weight: 900; color: #90be6d; }
+  .reporte-chip-label { font-size: 9px; color: rgba(255,255,255,0.6); font-weight: 700; }
+
+  /* ========================================
+     PANTALLA CURSO
+  ======================================== */
+  #curso { background: #eefcff; }
+  #curso .header { background: #eefcff; }
+
+  /* ========================================
+     SPLASH SCREEN
+  ======================================== */
+  #splash {
+    position: fixed; inset: 0; z-index: 999;
+    background: linear-gradient(160deg, #0077b6 0%, #00b4d8 60%, #90e0ef 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.6s ease;
+  }
+  #splash.oculto { opacity: 0; pointer-events: none; }
+  .splash-emoji {
+    font-size: 80px;
+    animation: flotar 2s ease-in-out infinite;
+  }
+  @keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-14px); }
+  }
+  .splash-titulo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 52px; color: white;
+    letter-spacing: 2px; margin-top: 16px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .splash-sub {
+    color: rgba(255,255,255,0.85);
+    font-size: 15px; font-weight: 700;
+    margin-top: 8px; text-align: center;
+    padding: 0 30px;
+  }
+  .splash-loader {
+    margin-top: 50px;
+    width: 180px; height: 6px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 99px; overflow: hidden;
+  }
+  .splash-loader-bar {
+    height: 100%; width: 0%;
+    background: white; border-radius: 99px;
+    animation: cargar 2s ease forwards;
+  }
+  @keyframes cargar {
+    0%   { width: 0%; }
+    80%  { width: 90%; }
+    100% { width: 100%; }
+  }
+  .splash-version {
+    position: absolute; bottom: 30px;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px; font-weight: 700;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--azul); color: white;
+    border-radius: 20px; padding: 2px 10px;
+    font-size: 12px; font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== SPLASH SCREEN ========== -->
+<div id="splash">
+  <div class="splash-emoji">🌍</div>
+  <div class="splash-titulo">EcoImpact</div>
+  <div class="splash-sub">Explora el impacto de los plásticos<br>y aprende a cuidar el planeta</div>
+  <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  <div class="splash-version">v1.0 · Proyecto Escolar</div>
+</div>
+
+<!-- ========== PANTALLA INICIO ========== -->
+<div id="inicio" class="screen active">
+  <div class="logo-area">
+    <div class="logo-emoji">🌍</div>
+    <div class="logo-titulo">EcoImpact</div>
+    <div class="logo-sub">Explora el impacto de los plásticos<br>y aprende cómo ayudar al planeta</div>
+  </div>
+
+  <div class="grid-botones">
+    <button class="card-btn" style="background:linear-gradient(135deg,#8ecae6,#ade8f4)" onclick="ir('info')">
+      <span class="icon">📚</span>
+      <span class="label">Información</span>
+    </button>
+    <button class="card-btn" style="background:linear-gradient(135deg,#90e0ef,#48cae4)" onclick="ir('calculadora')">
+      <span class="icon">🧮</span>
+      <span class="label">Calculadora Personal</span>
+    </button>
+    <button class="card-btn" style="background:linear-gradient(135deg,#52b788,#74c69d)" onclick="ir('filtro')">
+      <span class="icon">💧</span>
+      <span class="label">Filtro Natural</span>
+    </button>
+    <button class="card-btn" style="background:linear-gradient(135deg,#90be6d,#aee87e)" onclick="ir('juego'); iniciarJuego()">
+      <span class="icon">♻️</span>
+      <span class="label">Juego de Reciclaje</span>
+    </button>
+    <button class="card-btn full" style="background:linear-gradient(135deg,#adb5bd,#ced4da)" onclick="ir('curso')">
+      <span class="icon">🎥</span>
+      <span class="label">Curso / Video Ecológico</span>
+    </button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA INFORMACIÓN ========== -->
+<div id="info" class="screen">
+  <div class="header" style="background:white">
+    <button class="btn-back" onclick="ir('inicio')">←</button>
+    <span class="header-title">Microplásticos</span>
+    <span class="badge" id="badge-info">1 / 5</span>
+  </div>
+
+  <div class="slides-container">
+
+    <!-- SLIDE 1 -->
+    <div class="slide active" id="slide-0">
+      <div class="slide-card">
+        <span class="slide-emoji">🔬</span>
+        <div class="slide-titulo">¿Qué son los microplásticos?</div>
+        <p class="slide-texto">Son partículas de plástico <strong>menores a 5 mm</strong> que se generan cuando los plásticos grandes se degradan lentamente.</p>
+      </div>
+      <div class="slide-item"><span class="si">🍶</span> Botellas de plástico</div>
+      <div class="slide-item"><span class="si">🛍️</span> Bolsas de plástico</div>
+      <div class="slide-item"><span class="si">🧴</span> Envases y empaques</div>
+      <div class="slide-item"><span class="si">👕</span> Ropa sintética</div>
+    </div>
+
+    <!-- SLIDE 2 -->
+    <div class="slide" id="slide-1">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e0f7fa,#b2ebf2)">
+        <span class="slide-emoji">🌊</span>
+        <div class="slide-titulo">¿Cómo afectan al planeta?</div>
+        <p class="slide-texto">Los plásticos no desaparecen, se fragmentan en partículas cada vez más pequeñas que invaden todos los ecosistemas.</p>
+      </div>
+      <div class="slide-item"><span class="si">🏖️</span> Contaminan océanos y playas</div>
+      <div class="slide-item"><span class="si">🌿</span> Dañan ecosistemas terrestres</div>
+      <div class="slide-item"><span class="si">🐠</span> Afectan cadenas alimenticias</div>
+      <div class="slide-alerta">⏳ Un plástico puede tardar <strong>450 años</strong> en descomponerse</div>
+    </div>
+
+    <!-- SLIDE 3 -->
+    <div class="slide" id="slide-2">
+      <div class="slide-card" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0)">
+        <span class="slide-emoji">🐢</span>
+        <div class="slide-titulo">¿Cómo afectan a los animales?</div>
+        <p class="slide-texto">Miles de animales marinos confunden plástico con comida. Las consecuencias son devastadoras.</p>
+      </div>
+      <div class="slide-item"><span class="si">😮‍💨</span> Asfixia por ingestión</div>
+      <div class="slide-item"><span class="si">☠️</span> Intoxicación por químicos</div>
+      <div class="slide-item"><span class="si">🥺</span> Desnutrición al no poder comer</div>
+      <div class="slide-alerta">⚠️ Más de <strong>1 millón</strong> de animales marinos mueren por plástico cada año</div>
+    </div>
+
+    <!-- SLIDE 4 -->
+    <div class="slide" id="slide-3">
+      <div class="slide-card" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2)">
+        <span class="slide-emoji">🧬</span>
+        <div class="slide-titulo">¿Cómo llegan a los humanos?</div>
+        <p class="slide-texto">Los microplásticos ya forman parte de nuestra vida diaria sin que lo notemos.</p>
+      </div>
+      <div class="slide-item"><span class="si">💧</span> En el agua que bebemos</div>
+      <div class="slide-item"><span class="si">🍽️</span> En los alimentos que comemos</div>
+      <div class="slide-item"><span class="si">🩸</span> Ya detectados en sangre humana</div>
+      <div class="slide-alerta">🔬 También se han encontrado en pulmones y placentas humanas</div>
+    </div>
+
+    <!-- SLIDE 5 -->
+    <div class="slide" id="slide-4">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9)">
+        <span class="slide-emoji">💪</span>
+        <div class="slide-titulo">¿Cómo podemos ayudar?</div>
+        <p class="slide-texto">Pequeños cambios en nuestros hábitos tienen un gran impacto cuando millones de personas los adoptan.</p>
+      </div>
+      <div class="slide-item"><span class="si">♻️</span> Reutilizar y reciclar siempre</div>
+      <div class="slide-item"><span class="si">🧴</span> Usar termo en lugar de botellas</div>
+      <div class="slide-item"><span class="si">🛍️</span> Llevar bolsa de tela al mercado</div>
+      <div class="slide-item"><span class="si">🚫</span> Evitar plásticos desechables</div>
+    </div>
+
+  </div>
+
+  <div class="nav-slides">
+    <button class="btn-nav" id="btn-ant-info" onclick="cambiarSlide('info', -1)" disabled>←</button>
+    <div class="puntos-slide" id="puntos-info">
+      <div class="punto activo"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+    </div>
+    <button class="btn-nav" id="btn-sig-info" onclick="cambiarSlide('info', 1)">→</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA CALCULADORA ========== -->
+<div id="calculadora" class="screen">
+  <div class="header" style="background:#f4fbff">
+    <button class="btn-back" onclick="ir('inicio')">←</button>
+    <span class="header-title">Calculadora Personal</span>
+  </div>
+  <div class="calc-body">
+    <p class="calc-sub">¿Cuántos plásticos usas al día?</p>
+
+    <div class="input-row">
+      <span class="input-icon">🍶</span>
+      <span class="input-label">Botellas</span>
+      <input class="input-field" id="c-botellas" type="number" min="0" value="0" inputmode="numeric">
+    </div>
+    <div class="input-row">
+      <span class="input-icon">🛍️</span>
+      <span class="input-label">Bolsas</span>
+      <input class="input-field" id="c-bolsas" type="number" min="0" value="0" inputmode="numeric">
+    </div>
+    <div class="input-row">
+      <span class="input-icon">🥤</span>
+      <span class="input-label">Popotes</span>
+      <input class="input-field" id="c-popotes" type="number" min="0" value="0" inputmode="numeric">
+    </div>
+    <div class="input-row">
+      <span class="input-icon">🧃</span>
+      <span class="input-label">Vasos desechables</span>
+      <input class="input-field" id="c-vasos" type="number" min="0" value="0" inputmode="numeric">
+    </div>
+    <div class="input-row">
+      <span class="input-icon">📦</span>
+      <span class="input-label">Pedidos con empaque</span>
+      <input class="input-field" id="c-pedidos" type="number" min="0" value="0" inputmode="numeric">
+    </div>
+
+    <button class="btn-calcular" onclick="calcular()">🌎 Calcular mi impacto</button>
+
+    <div class="resultado-card" id="resultado-card">
+      <div id="resultado-error" class="resultado-error" style="display:none"></div>
+      <div id="resultado-items"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PANTALLA FILTRO ========== -->
+<div id="filtro" class="screen">
+  <div class="header" style="background:#eefcff">
+    <button class="btn-back" onclick="ir('inicio')">←</button>
+    <span class="header-title">Filtro Natural de Agua</span>
+    <span class="badge" id="badge-filtro">1 / 5</span>
+  </div>
+
+  <div class="slides-container">
+
+    <div class="slide active" id="filtro-slide-0">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e0f7fa,#b2ebf2)">
+        <span class="slide-emoji">🪣</span>
+        <div class="slide-titulo">El filtro natural</div>
+        <p class="slide-texto">Un filtro casero de agua usa materiales naturales en capas para limpiar el agua de impurezas visibles.</p>
+      </div>
+      <div class="slide-item"><span class="si">🪨</span> Grava — capa inferior</div>
+      <div class="slide-item"><span class="si">🏖️</span> Arena — capa media</div>
+      <div class="slide-item"><span class="si">🖤</span> Carbón activado — capa superior</div>
+      <div class="slide-item"><span class="si">🧶</span> Algodón — tapa filtrante</div>
+    </div>
+
+    <div class="slide" id="filtro-slide-1">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9)">
+        <span class="slide-emoji">💧</span>
+        <div class="slide-titulo">¿Cómo funciona?</div>
+        <p class="slide-texto">El agua pasa por cada capa y cada una atrapa un tipo diferente de contaminante.</p>
+      </div>
+      <div class="slide-item"><span class="si">🪨</span> Grava → atrapa partículas grandes</div>
+      <div class="slide-item"><span class="si">🏖️</span> Arena → filtra suciedad fina</div>
+      <div class="slide-item"><span class="si">🧶</span> Algodón → captura residuos pequeños</div>
+      <div class="slide-item"><span class="si">🖤</span> Carbón → absorbe olores e impurezas</div>
+    </div>
+
+    <div class="slide" id="filtro-slide-2">
+      <div class="slide-card" style="background:linear-gradient(135deg,#f3e5f5,#e1bee7)">
+        <span class="slide-emoji">🧪</span>
+        <div class="slide-titulo">¿Por qué funciona?</div>
+        <p class="slide-texto">El carbón activado tiene millones de microporos que atrapan sustancias contaminantes por adsorción.</p>
+      </div>
+      <div class="slide-item"><span class="si">⚗️</span> La arena filtra sedimentos físicos</div>
+      <div class="slide-item"><span class="si">🧲</span> El carbón atrae químicos orgánicos</div>
+      <div class="slide-item"><span class="si">🌀</span> La grava evita que se tape el sistema</div>
+    </div>
+
+    <div class="slide" id="filtro-slide-3">
+      <div class="slide-card" style="background:linear-gradient(135deg,#fff8e1,#ffecb3)">
+        <span class="slide-emoji">🌍</span>
+        <div class="slide-titulo">¿Para qué sirve?</div>
+        <p class="slide-texto">Este tipo de filtro es útil en situaciones de emergencia o como práctica educativa sobre el agua.</p>
+      </div>
+      <div class="slide-item"><span class="si">✅</span> Reduce suciedad visible</div>
+      <div class="slide-item"><span class="si">✅</span> Mejora la calidad del agua</div>
+      <div class="slide-item"><span class="si">✅</span> Útil en emergencias</div>
+      <div class="slide-alerta">⚠️ NO elimina virus, bacterias ni químicos peligrosos. No reemplaza la potabilización.</div>
+    </div>
+
+    <div class="slide" id="filtro-slide-4">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e8eaf6,#c5cae9)">
+        <span class="slide-emoji">🎥</span>
+        <div class="slide-titulo">Recursos adicionales</div>
+        <p class="slide-texto">Busca tutoriales en YouTube para ver cómo construir tu propio filtro paso a paso.</p>
+      </div>
+      <div class="slide-item"><span class="si">▶️</span> Busca: "filtro natural de agua casero"</div>
+      <div class="slide-item"><span class="si">📱</span> Escanea el QR de tu proyecto</div>
+      <div class="slide-item"><span class="si">📋</span> Anota los materiales antes de empezar</div>
+    </div>
+
+  </div>
+
+  <div class="nav-slides">
+    <button class="btn-nav" id="btn-ant-filtro" onclick="cambiarSlide('filtro', -1)" disabled>←</button>
+    <div class="puntos-slide" id="puntos-filtro">
+      <div class="punto activo"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+    </div>
+    <button class="btn-nav" id="btn-sig-filtro" onclick="cambiarSlide('filtro', 1)">→</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA JUEGO ========== -->
+<div id="juego" class="screen">
+  <div id="game-canvas">
+    <div class="game-bg"></div>
+    <div class="stars"></div>
+
+    <div id="game-ui">
+      <div class="game-stat">
+        <div class="game-stat-val" id="stat-reciclado">0</div>
+        <div class="game-stat-label">♻️ Reciclado</div>
+      </div>
+      <div class="game-stat peligro">
+        <div class="game-stat-val" id="stat-contaminacion">0/10</div>
+        <div class="game-stat-label">☠️ Contaminación</div>
+      </div>
+    </div>
+
+    <div id="reporte-juego">
+      <div class="reporte-chip">
+        <div class="reporte-chip-val" id="rep-animales">0</div>
+        <div class="reporte-chip-label">🐟 Animales<br>salvados</div>
+      </div>
+      <div class="reporte-chip">
+        <div class="reporte-chip-val" id="rep-dias">0</div>
+        <div class="reporte-chip-label">📅 Días extra<br>de vida</div>
+      </div>
+      <div class="reporte-chip">
+        <div class="reporte-chip-val" id="rep-impacto">0%</div>
+        <div class="reporte-chip-label">📉 Impacto<br>reducido</div>
+      </div>
+    </div>
+
+    <div id="objetos-container"></div>
+
+    <div id="cesto-wrap">
+      <div id="cesto-emoji">🗑️</div>
+      <div id="recicla-symbol">♻</div>
+    </div>
+
+    <div id="game-estado">
+      <div class="game-estado-titulo" id="estado-titulo"></div>
+      <div class="game-estado-sub" id="estado-sub"></div>
+    </div>
+  </div>
+
+  <div class="header">
+    <button class="btn-back" onclick="detenerJuego(); ir('inicio')">←</button>
+    <span class="header-title">♻ Recicla por el Planeta</span>
+  </div>
+
+  <div id="game-controls">
+    <button class="ctrl-btn" id="btn-izq" ontouchstart="moverIzq(true)" ontouchend="moverIzq(false)" onmousedown="moverIzq(true)" onmouseup="moverIzq(false)">◀</button>
+    <div class="ctrl-center">
+      <button class="ctrl-mini-btn" onclick="pausarJuego()">⏸ PAUSA</button>
+      <button class="ctrl-mini-btn" onclick="reiniciarJuego()">🔄 REINICIAR</button>
+    </div>
+    <button class="ctrl-btn" id="btn-der" ontouchstart="moverDer(true)" ontouchend="moverDer(false)" onmousedown="moverDer(true)" onmouseup="moverDer(false)">▶</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA CURSO ========== -->
+<div id="curso" class="screen">
+  <div class="header" style="background:#eefcff">
+    <button class="btn-back" onclick="ir('inicio')">←</button>
+    <span class="header-title">Curso Ecológico</span>
+    <span class="badge" id="badge-curso">1 / 5</span>
+  </div>
+
+  <div class="slides-container">
+
+    <div class="slide active" id="curso-slide-0">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9)">
+        <span class="slide-emoji">🌱</span>
+        <div class="slide-titulo">Bienvenido al curso</div>
+        <p class="slide-texto">Aprende hábitos simples que marcan una gran diferencia para el planeta y para tu salud.</p>
+      </div>
+      <div class="slide-item"><span class="si">📖</span> Reducir plástico en tu vida diaria</div>
+      <div class="slide-item"><span class="si">🌿</span> Hábitos ecológicos fáciles de adoptar</div>
+      <div class="slide-item"><span class="si">🌍</span> Cómo tu acción cambia el mundo</div>
+    </div>
+
+    <div class="slide" id="curso-slide-1">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e0f7fa,#b2ebf2)">
+        <span class="slide-emoji">🧴</span>
+        <div class="slide-titulo">Hábitos útiles</div>
+        <p class="slide-texto">Pequeños cambios diarios que reducen tu huella plástica significativamente.</p>
+      </div>
+      <div class="slide-item"><span class="si">✅</span> Usa termo o botella reutilizable</div>
+      <div class="slide-item"><span class="si">✅</span> Evita popotes, usa los de papel o metal</div>
+      <div class="slide-item"><span class="si">✅</span> Lleva bolsa de tela al supermercado</div>
+      <div class="slide-item"><span class="si">✅</span> Prefiere productos sin empaque excesivo</div>
+    </div>
+
+    <div class="slide" id="curso-slide-2">
+      <div class="slide-card" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2)">
+        <span class="slide-emoji">🏠</span>
+        <div class="slide-titulo">Cambios en casa</div>
+        <p class="slide-texto">Tu hogar es donde puedes hacer los cambios más grandes y duraderos.</p>
+      </div>
+      <div class="slide-item"><span class="si">🗂️</span> Separa los residuos por tipo</div>
+      <div class="slide-item"><span class="si">♻️</span> Reutiliza recipientes y envases</div>
+      <div class="slide-item"><span class="si">💧</span> Filtra el agua en lugar de comprarla</div>
+      <div class="slide-item"><span class="si">🚫</span> Evita vajilla y cubiertos desechables</div>
+    </div>
+
+    <div class="slide" id="curso-slide-3">
+      <div class="slide-card" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0)">
+        <span class="slide-emoji">🎥</span>
+        <div class="slide-titulo">Videos recomendados</div>
+        <p class="slide-texto">Busca estos temas en YouTube para profundizar más sobre ecología práctica.</p>
+      </div>
+      <div class="slide-item"><span class="si">▶️</span> "Cómo reducir plástico en casa"</div>
+      <div class="slide-item"><span class="si">▶️</span> "Microplásticos en el océano documental"</div>
+      <div class="slide-item"><span class="si">▶️</span> "Cero residuos — vida sostenible"</div>
+      <div class="slide-item"><span class="si">▶️</span> "Reciclaje correcto paso a paso"</div>
+    </div>
+
+    <div class="slide" id="curso-slide-4">
+      <div class="slide-card" style="background:linear-gradient(135deg,#e8eaf6,#c5cae9)">
+        <span class="slide-emoji">🌎</span>
+        <div class="slide-titulo">Reto ecológico — 7 días</div>
+        <p class="slide-texto">¿Te atreves? Intenta pasar una semana completa con estos hábitos.</p>
+      </div>
+      <div class="slide-item"><span class="si">☑️</span> Sin botellas desechables</div>
+      <div class="slide-item"><span class="si">☑️</span> Reutilizando bolsas cada vez</div>
+      <div class="slide-item"><span class="si">☑️</span> Reciclando correctamente</div>
+      <div class="slide-item"><span class="si">☑️</span> Usando menos empaques</div>
+      <div class="slide-alerta">🏆 Comparte tu reto con amigos y familia. ¡El impacto se multiplica!</div>
+    </div>
+
+  </div>
+
+  <div class="nav-slides">
+    <button class="btn-nav" id="btn-ant-curso" style="background:var(--verde)" onclick="cambiarSlide('curso', -1)" disabled>←</button>
+    <div class="puntos-slide" id="puntos-curso">
+      <div class="punto activo"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+      <div class="punto"></div>
+    </div>
+    <button class="btn-nav" id="btn-sig-curso" style="background:var(--verde)" onclick="cambiarSlide('curso', 1)">→</button>
+  </div>
+</div>
+
+<script>
+// ===================================================
+// SPLASH SCREEN
+// ===================================================
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.classList.add('oculto');
+    setTimeout(() => splash.remove(), 700);
+  }, 2400);
+});
+
+// ===================================================
+// NAVEGACIÓN
+// ===================================================
+const screens = ['inicio','info','calculadora','filtro','juego','curso'];
+let pantallaActual = 'inicio';
+
+function ir(id) {
+  document.getElementById(pantallaActual).classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  pantallaActual = id;
+  // scroll al top de cada pantalla
+  document.getElementById(id).scrollTop = 0;
+}
+
+// ===================================================
+// SLIDES GENÉRICO
+// ===================================================
+const estadoSlides = {
+  info:   { pagina: 0, total: 5, prefijo: 'slide' },
+  filtro: { pagina: 0, total: 5, prefijo: 'filtro-slide' },
+  curso:  { pagina: 0, total: 5, prefijo: 'curso-slide' },
+};
+
+function cambiarSlide(seccion, delta) {
+  const e = estadoSlides[seccion];
+  const antigua = e.pagina;
+  e.pagina = Math.max(0, Math.min(e.total - 1, e.pagina + delta));
+  if (antigua === e.pagina) return;
+
+  document.getElementById(`${e.prefijo}-${antigua}`).classList.remove('active');
+  document.getElementById(`${e.prefijo}-${e.pagina}`).classList.add('active');
+
+  // puntos
+  const puntos = document.querySelectorAll(`#puntos-${seccion} .punto`);
+  puntos.forEach((p, i) => p.classList.toggle('activo', i === e.pagina));
+
+  // badge
+  if (document.getElementById(`badge-${seccion}`))
+    document.getElementById(`badge-${seccion}`).textContent = `${e.pagina + 1} / ${e.total}`;
+
+  // botones
+  document.getElementById(`btn-ant-${seccion}`).disabled = e.pagina === 0;
+  document.getElementById(`btn-sig-${seccion}`).disabled = e.pagina === e.total - 1;
+}
+
+// soporte swipe en slides
+function agregarSwipe(elementId, seccion) {
+  const el = document.getElementById(elementId);
+  let startX = 0;
+  el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
+  el.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) cambiarSlide(seccion, dx < 0 ? 1 : -1);
+  }, {passive:true});
+}
+agregarSwipe('info', 'info');
+agregarSwipe('filtro', 'filtro');
+agregarSwipe('curso', 'curso');
+
+// ===================================================
+// CALCULADORA
+// ===================================================
+function calcular() {
+  const ids = ['c-botellas','c-bolsas','c-popotes','c-vasos','c-pedidos'];
+  const card = document.getElementById('resultado-card');
+  const err  = document.getElementById('resultado-error');
+  const items = document.getElementById('resultado-items');
+
+  card.classList.add('visible');
+  err.style.display = 'none';
+  items.innerHTML = '';
+
+  let vals = [];
+  for (const id of ids) {
+    const v = parseInt(document.getElementById(id).value);
+    if (isNaN(v) || v < 0) {
+      err.style.display = 'block';
+      err.textContent = '⚠️ Ingresa solo números enteros positivos';
+      items.innerHTML = '';
+      return;
+    }
+    vals.push(v);
+  }
+
+  const total = vals.reduce((a,b) => a+b, 0);
+  if (total === 0) {
+    err.style.display = 'block';
+    err.textContent = '¡Genial! No consumes plástico desechable 🌿';
+    return;
+  }
+
+  const anual   = total * 365;
+  const animales = total * 12;
+  const anos    = total * 450;
+  const finMundo = Math.floor(8000000000 / (total + 1));
+
+  const data = [
+    ['🌎', 'Residuos plásticos al año', anual.toLocaleString()],
+    ['🐟', 'Animales afectados',         animales.toLocaleString()],
+    ['⌛', 'Años contaminando',          anos.toLocaleString()],
+    ['⚠️', 'Días para colapso global',  finMundo.toLocaleString()],
+  ];
+
+  data.forEach(([emoji, label, val]) => {
+    items.innerHTML += `
+      <div class="resultado-item">
+        <span class="resultado-emoji">${emoji}</span>
+        <div class="resultado-texto">
+          <div class="resultado-label">${label}</div>
+          <div class="resultado-valor">${val}</div>
+        </div>
+      </div>`;
+  });
+}
+
+// ===================================================
+// JUEGO
+// ===================================================
+let gameLoop = null;
+let spawnLoop = null;
+let puntosJ = 0;
+let contaminacionJ = 0;
+let juegoActivo = false;
+let pausado = false;
+let cestoX = 50; // porcentaje
+let moverIzqActivo = false;
+let moverDerActivo = false;
+let objetosActivos = [];
+const VELOCIDAD_CESTO = 3.2; // % por frame
+const emojisJuego = ['🥤','🛍️','🧴','🍾'];
+const CONTAMINACION_MAX = 10;
+
+function iniciarJuego() {
+  reiniciarJuego();
+}
+
+function detenerJuego() {
+  juegoActivo = false;
+  cancelAnimationFrame(gameLoop);
+  clearInterval(spawnLoop);
+  gameLoop = null; spawnLoop = null;
+}
+
+function reiniciarJuego() {
+  detenerJuego();
+
+  puntosJ = 0;
+  contaminacionJ = 0;
+  pausado = false;
+  cestoX = 50;
+  moverIzqActivo = false;
+  moverDerActivo = false;
+
+  // limpiar objetos del DOM
+  objetosActivos.forEach(o => o.el && o.el.remove());
+  objetosActivos = [];
+
+  // reset UI
+  document.getElementById('stat-reciclado').textContent = '0';
+  document.getElementById('stat-contaminacion').textContent = `0/${CONTAMINACION_MAX}`;
+  document.getElementById('rep-animales').textContent = '0';
+  document.getElementById('rep-dias').textContent = '0';
+  document.getElementById('rep-impacto').textContent = '0%';
+
+  const estado = document.getElementById('game-estado');
+  estado.classList.remove('visible');
+
+  actualizarCesto();
+  juegoActivo = true;
+
+  spawnLoop = setInterval(spawnObjeto, 1000);
+  gameLoop = requestAnimationFrame(tickJuego);
+}
+
+function pausarJuego() {
+  if (!juegoActivo) return;
+  pausado = !pausado;
+  const estado = document.getElementById('game-estado');
+  if (pausado) {
+    estado.classList.add('visible');
+    document.getElementById('estado-titulo').textContent = '⏸ PAUSA';
+    document.getElementById('estado-sub').textContent = 'Toca REINICIAR para continuar';
+  } else {
+    estado.classList.remove('visible');
+    gameLoop = requestAnimationFrame(tickJuego);
+  }
+}
+
+function spawnObjeto() {
+  if (!juegoActivo || pausado) return;
+  const canvas = document.getElementById('objetos-container');
+  const emoji = emojisJuego[Math.floor(Math.random() * emojisJuego.length)];
+  const el = document.createElement('div');
+  el.className = 'objeto-juego';
+  el.textContent = emoji;
+  const xPct = 5 + Math.random() * 90;
+  el.style.left = xPct + '%';
+  el.style.top = '14%';
+  canvas.appendChild(el);
+  objetosActivos.push({ el, xPct, yPct: 14, velocidad: 1.2 + Math.random() * 0.8 });
+}
+
+function actualizarCesto() {
+  const wrap = document.getElementById('cesto-wrap');
+  wrap.style.left = cestoX + '%';
+}
+
+function tickJuego() {
+  if (!juegoActivo || pausado) return;
+
+  // mover cesto
+  if (moverIzqActivo) cestoX = Math.max(5, cestoX - VELOCIDAD_CESTO);
+  if (moverDerActivo) cestoX = Math.min(95, cestoX + VELOCIDAD_CESTO);
+  actualizarCesto();
+
+  // mover objetos
+  const eliminar = [];
+  for (const obj of objetosActivos) {
+    obj.yPct += obj.velocidad;
+    if (!obj.el) { eliminar.push(obj); continue; }
+    obj.el.style.top = obj.yPct + '%';
+
+    const dy = Math.abs(obj.yPct - 80); // cesto en ~80% (110px desde bottom en pantalla)
+    const dx = Math.abs(obj.xPct - cestoX);
+
+    if (dx < 8 && dy < 5) {
+      // RECICLADO
+      puntosJ++;
+      obj.el.remove();
+      eliminar.push(obj);
+      actualizarStats();
+    } else if (obj.yPct > 100) {
+      // PERDIDO
+      contaminacionJ++;
+      obj.el.remove();
+      eliminar.push(obj);
+      document.getElementById('stat-contaminacion').textContent = `${contaminacionJ}/${CONTAMINACION_MAX}`;
+      if (contaminacionJ >= CONTAMINACION_MAX) {
+        gameOver();
+        return;
+      }
+    }
+  }
+  for (const o of eliminar) {
+    const i = objetosActivos.indexOf(o);
+    if (i > -1) objetosActivos.splice(i, 1);
+  }
+
+  gameLoop = requestAnimationFrame(tickJuego);
+}
+
+function actualizarStats() {
+  document.getElementById('stat-reciclado').textContent = puntosJ;
+  document.getElementById('rep-animales').textContent = puntosJ * 3;
+  document.getElementById('rep-dias').textContent = puntosJ * 5;
+  document.getElementById('rep-impacto').textContent = (puntosJ * 12) + '%';
+}
+
+function gameOver() {
+  juegoActivo = false;
+  clearInterval(spawnLoop);
+  const estado = document.getElementById('game-estado');
+  estado.classList.add('visible');
+  document.getElementById('estado-titulo').textContent = '💀 GAME OVER';
+  document.getElementById('estado-sub').textContent = `Reciclaste ${puntosJ} plásticos · Toca REINICIAR`;
+}
+
+function moverIzq(activo) { moverIzqActivo = activo; }
+function moverDer(activo) { moverDerActivo = activo; }
+
+// teclado para desktop también
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  moverIzq(true);
+  if (e.key === 'ArrowRight') moverDer(true);
+  if (e.key === 'p') pausarJuego();
+  if (e.key === 'r') reiniciarJuego();
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft')  moverIzq(false);
+  if (e.key === 'ArrowRight') moverDer(false);
+});
+
+// prevenir scroll al presionar flechas
+window.addEventListener('keydown', e => {
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) e.preventDefault();
+}, {passive: false});
+</script>
+</body>
+</html>
